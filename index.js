@@ -2,6 +2,7 @@ const express = require('express');
 const easyecominvoice = require("./routes/createorder.js");
 
 const app = express();
+app.use(express.json());
 app.use("/createorder", easyecominvoice);
 
 const PORT = process.env.PORT || 3000;
