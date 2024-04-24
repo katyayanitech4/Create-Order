@@ -3,6 +3,7 @@ const easyecominvoice = require("./routes/createorder.js");
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use("/createorder", easyecominvoice);
 
 const PORT = process.env.PORT || 3000;
