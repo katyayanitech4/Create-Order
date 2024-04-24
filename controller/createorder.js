@@ -1,9 +1,9 @@
-const { postorder } = require("../utils/order.js");
+const { postordercreate } = require("../utils/order.js");
 
 exports.postorder = async (req, res) => {
     try {
         const easyecomData = req.body;
-        await postorder(easyecomData);
+        await postordercreate(easyecomData);
         return res.status(200).send('order created successfully');
     } catch (error) {
         console.log('Error processing webhook request for easyecom:', error);
