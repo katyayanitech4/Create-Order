@@ -1,5 +1,5 @@
 const axios = require('axios');
 
-exports.postorder = async (invoice) => {
+exports.postordercreate = async (invoice) => {
     console.log("easyecom invoice : ", invoice);
 }
