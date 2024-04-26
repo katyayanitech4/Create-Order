@@ -236,69 +236,30 @@ const generateAuthToken = async () => {
 const getCustomerId = async (phoneNumber) => {
     const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
     console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
-    try {
-        const response = await axios.get(
-            `https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=${phoneNumber}`,
-            {
+
+    const phoneFormats = [
+        phoneNumber,
+        `91${phoneNumber}`,
+        `%2B91${phoneNumber}`,
+        `%2B91 ${phoneNumber}`,
+    ];
+
+    for (const format of phoneFormats) {
+        try {
+            const response = await axios.get(`https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=${format}`, {
                 headers: {
                     Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
                 },
-            }
-        );
-
-        const contactId = response.data.contacts[0].contact_id;
-        if (contactId == null) {
-            const response = await axios.get(
-                `https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=91${phoneNumber}`,
-                {
-                    headers: {
-                        Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
-                    },
-                }
-            );
-            const contactId = response.data.contacts[0].contact_id;
-            return contactId;
-        } else if (contactId == null) {
-            const response = await axios.get(
-                `https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=%2B91${phoneNumber}`,
-                {
-                    headers: {
-                        Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
-                    },
-                }
-            );
-            const contactId = response.data.contacts[0].contact_id;
-            return contactId;
-        } else if (contactId == null) {
-            const response = await axios.get(
-                `https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=%2B91 ${phoneNumber}`,
-                {
-                    headers: {
-                        Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
-                    },
-                }
-            );
-            const contactId = response.data.contacts[0].contact_id;
-            return contactId;
-        } else if (contactId == null) {
-            const response = await axios.get(
-                `https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone${phoneNumber}`,
-                {
-                    headers: {
-                        Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
-                    },
-                }
-            );
-            const contactId = response.data.contacts[0].contact_id;
-            return contactId;
+            });
+            const contactId = response.data.contacts?.[0]?.contact_id;
+            if (contactId) return contactId;
+        } catch (error) {
+            console.error("Error getting customer ID:", error.message);
         }
-        console.log("contact id - ", contactId);
-        return contactId;
-    } catch (e) {
-        console.error("Error:", e);
-        return null;
     }
+    return null;
 };
+
 
 
 const postInvoiceToBooks = async (easycomData) => {
