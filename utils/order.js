@@ -238,7 +238,7 @@ const getCustomerId = async (phoneNumber) => {
     console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
 
     const phoneFormats = [
-        phoneNumber,
+        phoneNumber.replace('+', '%2B'),
         `91${phoneNumber}`,
         `%2B91${phoneNumber}`,
         `%2B91 ${phoneNumber}`,
