@@ -238,7 +238,7 @@ const getCustomerId = async (phoneNumber) => {
     console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
     try {
         const response = await axios.get(
-            `https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=%2B91${phoneNumber}`,
+            `https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=${phoneNumber}`,
             {
                 headers: {
                     Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
@@ -247,6 +247,7 @@ const getCustomerId = async (phoneNumber) => {
         );
 
         const contactId = response.data.contacts[0].contact_id;
+        console.log("contact id - ", contactId);
         return contactId;
     } catch (e) {
         console.error("Error:", e);
