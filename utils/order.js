@@ -317,6 +317,7 @@ exports.postordercreate = async (invoice) => {
             "line_items": [],
             "salesperson_name": salesPersons[invoice[0].reference_code.split("/")[1]] || "",
             "is_inclusive_tax": true,
+            "date": new Date(invoice[0].order_date).toISOString().split('T')[0],
             "place_of_supply": invoice[0].state_code,
             "custom_fields": [
                 {
