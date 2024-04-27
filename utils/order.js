@@ -263,26 +263,41 @@ const getCustomerId = async (phoneNumber) => {
 
 
 const postInvoiceToBooks = async (easycomData) => {
-    const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
-    console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
-
-    const config = {
-        method: 'post',
-        url: 'https://www.zohoapis.in/books/v3/invoices?organization_id=60019077540',
-        headers: {
-            'Authorization': `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
-            'Content-Type': 'application/json'
-        },
-        data: easycomData
-    };
-
     try {
-        return await axios(config);
+        const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
+        console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
+
+        const config = {
+            method: 'post',
+            url: 'https://www.zohoapis.in/books/v3/invoices?organization_id=60019077540',
+            headers: {
+                'Authorization': `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            data: easycomData
+        };
+
+        const response = await axios(config);
+        const invoice_id = response.data.invoice.invoice_id;
+
+        const statusUpdateConfig = {
+            method: 'post',
+            url: `https://www.zohoapis.in/books/v3/invoices/${invoice_id}/status/sent?organization_id=60019077540`,
+            headers: {
+                'Authorization': `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        const statusUpdateResponse = await axios(statusUpdateConfig);
+
+        return statusUpdateResponse;
     } catch (error) {
         console.log('Error in postInvoiceToBooks function:', error);
         // throw error;
     }
 }
+
 
 const getItemIdFromSKU = async (sku) => {
     try {
