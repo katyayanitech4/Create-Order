@@ -324,6 +324,7 @@ exports.postordercreate = async (invoice) => {
     const customerId = await getCustomerId(invoice[0].contact_num);
     console.log(invoice[0].order_items);
     console.log("Salesperson Id ", invoice[0].reference_code.split("/")[1]);
+    console.log("easyecom order history", invoice[0].easyecom_order_history);
     try {
         const easycomData = {
             "customer_id": customerId,
