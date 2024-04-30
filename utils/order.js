@@ -225,24 +225,24 @@ const termsOfPayment = {
 
 // const spreadsheetId = '1lRV3PCgeqhjX0CT3mcGA357_Bk4OeOshG1f0nRXdqSo';
 
-const addRowOnSheet = async (rows) => {
-    const ResponsesSheetId = "1y2mD-cM10CcZSaKmjPFHrmFIwLdsOgYquifqpHg9uz8";
-    const doc = new GoogleSpreadsheet(ResponsesSheetId);
+// const addRowOnSheet = async (rows) => {
+//     const ResponsesSheetId = "1y2mD-cM10CcZSaKmjPFHrmFIwLdsOgYquifqpHg9uz8";
+//     const doc = new GoogleSpreadsheet(ResponsesSheetId);
 
-    const CREDENTIALS = JSON.parse(fs.readFileSync('frieght-421909-3bf3d7b3e26d.json'));
-    await doc.useServiceAccountAuth({
-        client_email: CREDENTIALS.client_email,
-        private_key: CREDENTIALS.private_key
-    });
-    await doc.loadInfo();
+//     const CREDENTIALS = JSON.parse(fs.readFileSync('frieght-421909-3bf3d7b3e26d.json'));
+//     await doc.useServiceAccountAuth({
+//         client_email: CREDENTIALS.client_email,
+//         private_key: CREDENTIALS.private_key
+//     });
+//     await doc.loadInfo();
 
-    let sheet = doc.sheetsByIndex[0];
+//     let sheet = doc.sheetsByIndex[0];
 
-    for (let index = 0; index < rows.length; index++) {
-        const row = rows[index];
-        await sheet.addRow(row);
-    }
-}
+//     for (let index = 0; index < rows.length; index++) {
+//         const row = rows[index];
+//         await sheet.addRow(row);
+//     }
+// }
 
 const generateAuthToken = async () => {
     try {
@@ -286,29 +286,6 @@ const getCustomerId = async (phoneNumber) => {
 const uploadFreightChargesToSheet = async (orderId) => {
     const url = `https://apiv2.shiprocket.in/v1/external/orders?search=${orderId}`;
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM0MDIwMDgsInNvdXJjZSI6InNyLWF1dGgtaW50IiwiZXhwIjoxNzE0ODkxNTE5LCJqdGkiOiJCOU9ySERXeUM0d0M4TWRoIiwiaWF0IjoxNzE0MDI3NTE5LCJpc3MiOiJodHRwczovL3NyLWF1dGguc2hpcHJvY2tldC5pbi9hdXRob3JpemUvdXNlciIsIm5iZiI6MTcxNDAyNzUxOSwiY2lkIjoyNTMyOTksInRjIjozNjAsInZlcmJvc2UiOmZhbHNlLCJ2ZW5kb3JfaWQiOjAsInZlbmRvcl9jb2RlIjoid29vY29tbWVyY2UifQ.X0uOCUBWgyILNRJuiuZVcdgj5ZFisGxyuBb5PXOcr-0';
-
-    // const auth = new google.auth.GoogleAuth({
-    //     keyFile: 'path/to/your/service-account-key.json',
-    //     scopes: ['https://www.googleapis.com/auth/spreadsheets']
-    // });
-    // const sheets = google.sheets({ version: 'v4', auth });
-    // const values = [
-    //     [orderId, srOrderId, date, productName, orderValue, paymentMode, awb, weight, courierName, freightCharge, freightChargePercentage]
-    // ];
-
-    // const resource = {
-    //     values: values
-    // };
-
-    // const range = 'Sheet1';
-    // const result = await sheets.spreadsheets.values.append({
-    //     spreadsheetId: spreadsheetId,
-    //     range: range,
-    //     valueInputOption: 'USER_ENTERED',
-    //     resource: resource
-    // });
-
-    // console.log(`${result.data.updates.updatedCells} cells appended.`);
     try {
         const response = await axios.get(url, {
             headers: {
@@ -340,14 +317,37 @@ const uploadFreightChargesToSheet = async (orderId) => {
         console.log("Freight Charge:", freightCharge);
         console.log("Freight Charge %:", freightChargePercentage);
 
-        addRowOnSheet([{
-            "Order ID": orderId,
-            "Date": date,
-            "Product Name": productName,
-            "Order Value": orderValue,
-            "Payment Mode": paymentMode, "AWB": awb, "Weight": weight, "Courier Name": courierName, "Frieght Charge": freightCharge,
-            "% Frieght Charge": freightChargePercentage,
-        }]);
+        const auth = new google.auth.GoogleAuth({
+            keyFile: 'frieght-421909-3bf3d7b3e26d.json',
+            scopes: ['https://www.googleapis.com/auth/spreadsheets']
+        });
+        const sheets = google.sheets({ version: 'v4', auth });
+        const values = [
+            [orderId, date, productName, orderValue, paymentMode, awb, weight, courierName, freightCharge, freightChargePercentage]
+        ];
+
+        const resource = {
+            values: values
+        };
+
+        const range = 'Sheet1!A2:J2';
+        const result = await sheets.spreadsheets.values.append({
+            spreadsheetId: "1y2mD-cM10CcZSaKmjPFHrmFIwLdsOgYquifqpHg9uz8",
+            range: range,
+            valueInputOption: 'USER_ENTERED',
+            resource: resource
+        });
+
+        console.log(`${result.data.updates.updatedCells} cells appended.`);
+
+        // addRowOnSheet([{
+        //     "Order ID": orderId,
+        //     "Date": date,
+        //     "Product Name": productName,
+        //     "Order Value": orderValue,
+        //     "Payment Mode": paymentMode, "AWB": awb, "Weight": weight, "Courier Name": courierName, "Frieght Charge": freightCharge,
+        //     "% Frieght Charge": freightChargePercentage,
+        // }]);
 
         return response;
     } catch (error) {
