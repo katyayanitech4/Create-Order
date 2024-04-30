@@ -1,6 +1,5 @@
 const axios = require('axios');
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-const fs = require('fs');
+const { google } = require('googleapis');
 
 const salesPersons = {
     'uqqo2': 'sales1',
