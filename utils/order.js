@@ -317,6 +317,7 @@ const uploadFreightChargesToSheet = async (orderId) => {
         });
 
         const data = response.data.data[0];
+        console.log("Shiprocket data :  ", data);
         const orderId = data.channel_order_id;
         const date = data.channel_created_at;
         const productName = data.products[0].name;
@@ -348,7 +349,7 @@ const uploadFreightChargesToSheet = async (orderId) => {
             "% Frieght Charge": freightChargePercentage,
         });
 
-        return null;
+        return response;
     } catch (error) {
         console.error("Error:", error.response ? error.response.data : error.message);
         throw error;
@@ -417,7 +418,6 @@ const getItemIdFromSKU = async (sku) => {
 exports.postordercreate = async (invoice) => {
     console.log("easyecom invoice : ", invoice);
     console.log("SheetOrderId", invoice[0].reference_code);
-    uploadFreightChargesToSheet(invoice[0].reference_code);
     const customerId = await getCustomerId(invoice[0].contact_num);
     console.log(invoice[0].order_items);
     console.log("Salesperson Id ", invoice[0].reference_code.split("/")[1]);
@@ -546,6 +546,9 @@ exports.postordercreate = async (invoice) => {
         console.log(easycomData);
 
         const response = await postInvoiceToBooks(easycomData);
+        setTimeout(async () => {
+            await uploadFreightChargesToSheet(invoice[0].reference_code);
+        }, 30000);
         console.log('easyecom invoice posted to Zoho books successfully:', response.data);
     } catch (error) {
         console.log('Error posting easyecom invoice to Zoho books:', error.response ? error.response.data : error);
