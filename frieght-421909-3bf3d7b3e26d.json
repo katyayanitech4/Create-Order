@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "frieght-421909",
+  "private_key_id": "3bf3d7b3e26d6f66acb1b13acaba1ca51884a3bc",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDoskd0KTMN3QRz\nfjg94QDJMdQdss2AK4PkIfP3VOmNLeiYF9DzkPgR5pOwRvg62U7vFaPc4vsLhxpA\neyycHuwPG4m0IOlolhOkIloZGuw4veV5W3Pga1PpHLuU/QTOhV62E7hb6+iEpp1G\nofcYsniYoOPvXCD5ZAFb//6y4SrXS0W/bptS41RoL01NG3ZEdR86TpI8LhUV/rDx\nUyubp2gHYLeGTVhZcGlY7HK3o57RCmZldEl5REy5G7JBq5uirDOb4jgFXdoxCoB2\nkoOK/iidILypSiqaOC5UtadL43Nuux73OBQAYHCJJyKfCoDs8TgJL5W0rtCQK0k1\npxMCjvXDAgMBAAECggEACvcCT0gftpVbFSwgmf3aa8tJdlV2FzDgZ/rCRGh/vDN/\nxHxJetNdH87QgnEdrPw6GsxXaocBkw38iob4rP9Mr/uOthUKRUTedmYDU9qFFg67\nW51tF5PxzMgZ/g/Gzwp8J4fvWy7XHTpn/9Y4TrVzjFGh2/tojF042S0gwyzBYt/7\nS0wG31OWV9wMPRNrxCoKHWQuUgCpcHjKQ5iLTSI2R1La3oHeR1mr3SRNvObqRIWH\noMKwzs1t+K39ihFgMuYQZMOTy8sUYsSThfAkDaZIpxvM2OKgUl3KOZyP1h+Da9ug\n9ePf11PIje458TCIc/yS6ZHvUM49ZuspuCP3f8rmlQKBgQD+E5zFLo5dZYiC11/p\nlkvgNf765ukMNFLpfLlfBBnFBJIm83x5by6I5NyuMPBmi6xG6Y06YOnQXh+MYZ0W\niJmc+MlEr9Iwx52NS9bEys9eDKk7Vxt5qHZoKJhFP36Sc0IxrUdu2f+QfX09FGF+\nEPlfD+C/N73YeBoKq6sSv3etNQKBgQDqdTuj/M6hQfro0U6NjrfAMKZvmKqdtk+F\n0wJCDmYhOAQH+/4b3iUJ2SsXnQq+vDsydQmCx1DRwgsCg8kV2FPGzP2TYLETL/QT\nW4E06QXpaTSDoHQIAC+CKdbF11asEC29kPD1IP5cn0QqM4KB6UVZ00/z3nOHU7hh\nibFQIC+OFwKBgGoKFWvWOmSQc6Dn8oeyyogRARIGPU1yqQf5ngQh2f94IOdQx6qG\n1I0dt1yb4DlsIcKWxvKOcAcewVv9gWpeKH5y9s1L9BWXuhG2jTQk0NcXwamaeUUV\nIhXmm2aLUXAd2oqRHzcMlLThKtvLHcVXoDwkjFBCG2G0/mllrEhu0KvhAoGBAJ4W\n2lYiurklIigmKc9tch0XMMKCsFiTe1+C/jzINLklaiJwGdF0oojXdCUB8SLXDRti\nqz0RZD9rlbzmW4ptSV/9DOZ5Bi0n4m3C/4ZLsX7HP2+Zm2NhrKcZywWvw3NVnWH6\n/15qFtkhUvcZsGAkiGye/YQ0dLXFD8hE7dhXO3mVAoGBALY4S6FRnIppn+tVHIgG\nQpx2uG66fkI5sU43K9Mbz9Ob5VVAZqfQ0dL3uOlxD95KLlx4Sqqu/RSL636hS41s\nzLfJF63DJGlzVOqCUd8vh8ENZ7I/F3I4+PIIG0rB+AGhvr4dHo7lZCU4Y89sbh1J\njpY+eCwP09jo6sbZEW1Zo0tJ\n-----END PRIVATE KEY-----\n",
+  "client_email": "frieght-charges@frieght-421909.iam.gserviceaccount.com",
+  "client_id": "101164527588504363059",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/frieght-charges%40frieght-421909.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
