@@ -224,12 +224,12 @@ const termsOfPayment = {
 }
 
 // const spreadsheetId = '1lRV3PCgeqhjX0CT3mcGA357_Bk4OeOshG1f0nRXdqSo';
-const ResponsesSheetId = "1y2mD-cM10CcZSaKmjPFHrmFIwLdsOgYquifqpHg9uz8";
-const doc = new GoogleSpreadsheet(ResponsesSheetId);
-
-const CREDENTIALS = JSON.parse(fs.readFileSync('frieght-421909-3bf3d7b3e26d.json'));
 
 const addRowOnSheet = async (rows) => {
+    const ResponsesSheetId = "1y2mD-cM10CcZSaKmjPFHrmFIwLdsOgYquifqpHg9uz8";
+    const doc = new GoogleSpreadsheet(ResponsesSheetId);
+
+    const CREDENTIALS = JSON.parse(fs.readFileSync('frieght-421909-3bf3d7b3e26d.json'));
     await doc.useServiceAccountAuth({
         client_email: CREDENTIALS.client_email,
         private_key: CREDENTIALS.private_key
@@ -340,14 +340,14 @@ const uploadFreightChargesToSheet = async (orderId) => {
         console.log("Freight Charge:", freightCharge);
         console.log("Freight Charge %:", freightChargePercentage);
 
-        addRowOnSheet({
+        addRowOnSheet([{
             "Order ID": orderId,
             "Date": date,
             "Product Name": productName,
             "Order Value": orderValue,
             "Payment Mode": paymentMode, "AWB": awb, "Weight": weight, "Courier Name": courierName, "Frieght Charge": freightCharge,
             "% Frieght Charge": freightChargePercentage,
-        });
+        }]);
 
         return response;
     } catch (error) {
