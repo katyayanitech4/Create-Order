@@ -317,6 +317,7 @@ const uploadFreightChargesToSheet = async (orderId) => {
         freightCharge = data.awb_data.charges.freight_charges;
         freightChargePercentage = ((freightCharge / orderValue) * 100).toFixed(2);
 
+
         console.log("Order ID:", orderId);
         console.log("Date:", date);
         console.log("Product Name:", productName);
