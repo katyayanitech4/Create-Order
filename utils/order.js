@@ -295,28 +295,16 @@ const uploadFreightChargesToSheet = async (orderId) => {
         const data = response.data.data[0];
         console.log("Shiprocket data :  ", data);
 
-        const orderId = "";
-        const date = "";
-        const productName = "";
-        const orderValue = "";
-        const paymentMode = "";
-        const awb = "";
-        const weight = "";
-        const courierName = "";
-        const freightCharge = "";
-        const freightChargePercentage = "";
-
-        orderId = data.channel_order_id;
-        date = data.channel_created_at;
-        productName = data.products[0].name;
-        orderValue = data.total;
-        paymentMode = data.payment_method;
-        awb = data.shipments[0].awb;
-        weight = data.shipments[0].weight;
-        courierName = data.shipments[0].courier;
-        freightCharge = data.awb_data.charges.freight_charges;
-        freightChargePercentage = ((freightCharge / orderValue) * 100).toFixed(2);
-
+        const orderId = data.channel_order_id;
+        const date = data.channel_created_at;
+        const productName = data.products[0].name;
+        const orderValue = data.total;
+        const paymentMode = data.payment_method;
+        const awb = data.shipments[0].awb;
+        const weight = data.shipments[0].weight;
+        const courierName = data.shipments[0].courier;
+        const freightCharge = data.awb_data.charges.freight_charges;
+        const freightChargePercentage = ((freightCharge / orderValue) * 100).toFixed(2);
 
         console.log("Order ID:", orderId);
         console.log("Date:", date);
