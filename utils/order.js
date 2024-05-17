@@ -420,10 +420,11 @@ exports.postordercreate = async (invoice) => {
     console.log("SheetOrderId", invoice[0].reference_code);
     const customerId = await getCustomerId(invoice[0].contact_num);
     console.log(invoice[0].order_items);
-    console.log(`Custome Feild ${invoice[0].order_items.custom_fields[0]}`);
-    console.log(`Custome Feild ${invoice[0].order_items.custom_fields[1]}`);
+    console.log(`Custome Feild ${invoice[0].order_items.custom_fields}`);
     console.log("Salesperson Id ", invoice[0].reference_code.split("/")[1]);
     console.log("easyecom order history", invoice[0].easyecom_order_history);
+    console.log(`Custome Feild ${invoice[0].order_items.custom_fields}`);
+    console.log(`Custome Feild ${invoice[0].order_items.custom_fields[1]}`);
 
     try {
         const easycomData = {
