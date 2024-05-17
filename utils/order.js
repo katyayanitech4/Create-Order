@@ -523,7 +523,26 @@ console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
                     "value": new Date(invoice[0].order_date).toISOString().split('T')[0],
                     "is_dependent_field": false
                 },
-
+                {
+                    "field_id": "1155413000001759099",
+                    "customfield_id": "1155413000001759099",
+                    "show_in_store": false,
+                    "show_in_portal": false,
+                    "is_active": true,
+                    "index": 1,
+                    "label": "Terms of Delivery",
+                    "show_on_pdf": true,
+                    "edit_on_portal": false,
+                    "edit_on_store": false,
+                    "api_name": "cf_terms_of_delivery",
+                    "show_in_all_pdf": true,
+                    "value_formatted": termsOfDelivery.field_value,
+                    "search_entity": "invoice",
+                    "data_type": "string",
+                    "placeholder": "cf_terms_of_delivery",
+                    "value": termsOfDelivery.field_value,
+                    "is_dependent_field": false
+                },
             ]
         };
 
