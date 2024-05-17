@@ -423,7 +423,7 @@ exports.postordercreate = async (invoice) => {
     console.log(`Custome Feild ${invoice[0].order_items.custom_fields}`);
     console.log("Salesperson Id ", invoice[0].reference_code.split("/")[1]);
     console.log("easyecom order history", invoice[0].easyecom_order_history);
-    console.log(`Custome Feild ${invoice[0].order_items.custom_fields}`);
+    console.log(`Custome Feild ${invoice[0].order_items[0].custom_fields}`);
     console.log(`Custome Feild ${invoice[0].order_items.custom_fields[1]}`);
 
     try {
