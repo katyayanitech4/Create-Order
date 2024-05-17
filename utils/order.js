@@ -423,12 +423,11 @@ exports.postordercreate = async (invoice) => {
     console.log(`Custome Feild ${invoice[0].order_items.custom_fields}`);
     console.log("Salesperson Id ", invoice[0].reference_code.split("/")[1]);
     console.log("easyecom order history", invoice[0].easyecom_order_history);
-    console.log(`Custome Feild ${invoice[0].order_items[0].custom_fields}`);
+
     console.log(`custom_fields: ${JSON.stringify(invoice[0]?.order_items[0]?.custom_fields)}`);
-    console.log(`Custome Feild ${invoice[0].order_items[0].custom_fields[0]}`);
-    
-    console.log(`Custome Feild ${invoice[0].order_items[0].custom_fields[1]}`);
-    console.log(`Custome Feild ${invoice[0].order_items[0][0].custom_fields[1]}`);
+const customFields = invoice[0].order_items[0].custom_fields;
+const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery");
+console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
 
     try {
         const easycomData = {
