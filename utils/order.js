@@ -427,7 +427,7 @@ exports.postordercreate = async (invoice) => {
     console.log(`custom_fields: ${JSON.stringify(invoice[0]?.order_items[0]?.custom_fields)}`);
 const customFields = invoice[0].order_items[0].custom_fields;
 const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery");
-console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
+// console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
 
     try {
         const easycomData = {
@@ -536,11 +536,11 @@ console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
                     "edit_on_store": false,
                     "api_name": "cf_terms_of_delivery",
                     "show_in_all_pdf": true,
-                    "value_formatted": termsOfDelivery.field_value,
+                    "value_formatted": termsOfDelivery.field_value || '',
                     "search_entity": "invoice",
                     "data_type": "string",
                     "placeholder": "cf_terms_of_delivery",
-                    "value": termsOfDelivery.field_value,
+                    "value": termsOfDelivery.field_value || '',
                     "is_dependent_field": false
                 },
             ]
