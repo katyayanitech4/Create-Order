@@ -222,65 +222,7 @@ const termsOfPayment = {
     "PrePaid": "Prepaid",
 }
 
-// const spreadsheetId = '1lRV3PCgeqhjX0CT3mcGA357_Bk4OeOshG1f0nRXdqSo';
 
-// const addRowOnSheet = async (rows) => {
-//     const ResponsesSheetId = "1y2mD-cM10CcZSaKmjPFHrmFIwLdsOgYquifqpHg9uz8";
-//     const doc = new GoogleSpreadsheet(ResponsesSheetId);
-
-//     const CREDENTIALS = JSON.parse(fs.readFileSync('frieght-421909-3bf3d7b3e26d.json'));
-//     await doc.useServiceAccountAuth({
-//         client_email: CREDENTIALS.client_email,
-//         private_key: CREDENTIALS.private_key
-//     });
-//     await doc.loadInfo();
-
-//     let sheet = doc.sheetsByIndex[0];
-
-//     for (let index = 0; index < rows.length; index++) {
-//         const row = rows[index];
-//         await sheet.addRow(row);
-//     }
-// }
-
-const generateAuthToken = async () => {
-    try {
-        const response = await axios.get(
-            "https://script.google.com/macros/s/AKfycbz4HwSNCuMV-s1Bz9-G-37E1tHp7bxQ35ICns48cXgwd6mdgE4KqIT8LDuxjMr7w7Gzww/exec",
-        );
-        return response.data.trim();
-    } catch (error) {
-        console.error("Error generating auth token:", error.message);
-        // throw error;
-    }
-};
-
-const getCustomerId = async (phoneNumber) => {
-    const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
-    console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
-
-    const phoneFormats = [
-        phoneNumber.replace('+', '%2B'),
-        `91${phoneNumber}`,
-        `%2B91${phoneNumber}`,
-        `%2B91 ${phoneNumber}`,
-    ];
-
-    for (const format of phoneFormats) {
-        try {
-            const response = await axios.get(`https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=${format}`, {
-                headers: {
-                    Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
-                },
-            });
-            const contactId = response.data.contacts?.[0]?.contact_id;
-            if (contactId) return contactId;
-        } catch (error) {
-            console.error("Error getting customer ID:", error.message);
-        }
-    }
-    return null;
-};
 
 const uploadFreightChargesToSheet = async (orderId) => {
     const url = `https://apiv2.shiprocket.in/v1/external/orders?search=${orderId}`;
@@ -356,7 +298,89 @@ const uploadFreightChargesToSheet = async (orderId) => {
     }
 };
 
+const generateAuthToken = async () => {
+    try {
+        const response = await axios.get(
+            "https://script.google.com/macros/s/AKfycbz4HwSNCuMV-s1Bz9-G-37E1tHp7bxQ35ICns48cXgwd6mdgE4KqIT8LDuxjMr7w7Gzww/exec"
+        );
+        return response.data.trim();
+    } catch (error) {
+        console.error("Error generating auth token:", error.message);
+    }
+};
 
+const createCustomer = async (customerData) => {
+    try {
+        const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
+        const response = await axios.post(
+            'https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540',
+            customerData,
+            {
+                headers: {
+                    Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+            }
+        );
+        console.log(`Create Customer response : ${response.data}`);
+        return response.data.contact.contact_id;
+    } catch (error) {
+        console.error("Error creating customer:", error.message);
+        return null;
+    }
+};
+
+const getCustomerId = async (phoneNumber, invoice) => {
+    const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
+    console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
+
+    const phoneFormats = [
+        phoneNumber.replace('+', '%2B'),
+        `91${phoneNumber}`,
+        `%2B91${phoneNumber}`,
+        `%2B91 ${phoneNumber}`,
+    ];
+
+    for (const format of phoneFormats) {
+        try {
+            const response = await axios.get(`https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=${format}`, {
+                headers: {
+                    Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
+                },
+            });
+            const contactId = response.data.contacts?.[0]?.contact_id;
+            if (contactId) return contactId;
+        } catch (error) {
+            console.error("Error getting customer ID:", error.message);
+        }
+    }
+
+    const newCustomerData = {
+        contact_name: invoice.customer_name,
+        phone: invoice.contact_num,
+        mobile: invoice.contact_num,
+        billing_address: {
+            attention: invoice.customer_name,
+            address: invoice.billing_address_1,
+            street2: invoice.billing_address_2,
+            state_code: invoice.billing_state_code,
+            city: invoice.billing_city,
+            state: invoice.billing_state,
+            zip: invoice.billing_pin_code,
+            country: invoice.billing_country,
+            phone: invoice.contact_num,
+        },
+        contact_persons: [
+            {
+                first_name: invoice.customer_name,
+                phone: invoice.contact_num,
+                mobile: invoice.contact_num,
+            }
+        ],
+    };
+
+    return await createCustomer(newCustomerData);
+};
 
 const postInvoiceToBooks = async (easycomData) => {
     try {
@@ -390,10 +414,8 @@ const postInvoiceToBooks = async (easycomData) => {
         return statusUpdateResponse;
     } catch (error) {
         console.log('Error in postInvoiceToBooks function:', error);
-        // throw error;
     }
 }
-
 
 const getItemIdFromSKU = async (sku) => {
     try {
@@ -418,114 +440,141 @@ const getItemIdFromSKU = async (sku) => {
 exports.postordercreate = async (invoice) => {
     console.log("easyecom invoice : ", invoice);
     console.log("SheetOrderId", invoice[0].reference_code);
-    const customerId = await getCustomerId(invoice[0].contact_num);
+
+    const customerId = await getCustomerId(invoice[0].contact_num, invoice[0]);
     console.log(invoice[0].order_items);
-    console.log(`Custome Feild ${invoice[0].order_items.custom_fields}`);
     console.log("Salesperson Id ", invoice[0].reference_code.split("/")[1]);
     console.log("easyecom order history", invoice[0].easyecom_order_history);
 
+    const customFields = invoice[0]?.order_items?.[0]?.custom_fields || [];
+    const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery") || { field_value: null };
+
     try {
         const easycomData = {
-            "customer_id": customerId,
-            "invoice_number": invoice[0].reference_code.length > 16 ? invoice[0].reference_code.substring(0, 6) + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0') : invoice[0].reference_code,
-            "reference_number": invoice[0].reference_code,
-            "line_items": [],
-            "salesperson_name": salesPersons[invoice[0].reference_code.split("/")[1]] || "",
-            "is_inclusive_tax": true,
-            "date": new Date(invoice[0].order_date).toISOString().split('T')[0],
-            "place_of_supply": invoice[0].state_code,
-            "custom_fields": [
+            customer_id: customerId,
+            invoice_number: invoice[0].reference_code.length > 16 
+                ? invoice[0].reference_code.substring(0, 6) + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0') 
+                : invoice[0].reference_code,
+            reference_number: invoice[0].reference_code || null,
+            line_items: [],
+            salesperson_name: salesPersons[invoice[0].reference_code.split("/")[1]] || null,
+            is_inclusive_tax: true,
+            date: new Date(invoice[0].order_date).toISOString().split('T')[0],
+            place_of_supply: invoice[0].state_code || null,
+            custom_fields: [
                 {
-                    "field_id": "1155413000002568031",
-                    "customfield_id": "1155413000002568031",
-                    "show_in_store": false,
-                    "show_in_portal": false,
-                    "is_active": true,
-                    "index": 1,
-                    "label": "Marketplace",
-                    "show_on_pdf": true,
-                    "edit_on_portal": false,
-                    "edit_on_store": false,
-                    "api_name": "cf_sales_account",
-                    "show_in_all_pdf": true,
-                    "selected_option_id": "1155413000002568033",
-                    "value_formatted": marketPlaces[invoice[0].marketplace] || invoice[0].marketPlaces,
-                    "search_entity": "invoice",
-                    "data_type": "dropdown",
-                    "placeholder": "cf_sales_account",
-                    "value": marketPlaces[invoice[0].marketplace] || "",
-                    "is_dependent_field": false
+                    field_id: "1155413000002568031",
+                    customfield_id: "1155413000002568031",
+                    show_in_store: false,
+                    show_in_portal: false,
+                    is_active: true,
+                    index: 1,
+                    label: "Marketplace",
+                    show_on_pdf: true,
+                    edit_on_portal: false,
+                    edit_on_store: false,
+                    api_name: "cf_sales_account",
+                    show_in_all_pdf: true,
+                    selected_option_id: "1155413000002568033",
+                    value_formatted: marketPlaces[invoice[0].marketplace] || null,
+                    search_entity: "invoice",
+                    data_type: "dropdown",
+                    placeholder: "cf_sales_account",
+                    value: marketPlaces[invoice[0].marketplace] || null,
+                    is_dependent_field: false
                 },
                 {
-                    "field_id": "1155413000001759107",
-                    "customfield_id": "1155413000001759107",
-                    "show_in_store": false,
-                    "show_in_portal": false,
-                    "is_active": true,
-                    "index": 1,
-                    "label": "Terms of Payment",
-                    "show_on_pdf": true,
-                    "edit_on_portal": false,
-                    "edit_on_store": false,
-                    "api_name": "cf_terms_of_payment",
-                    "show_in_all_pdf": true,
-                    "value_formatted": termsOfPayment[invoice[0].payment_mode],
-                    "search_entity": "invoice",
-                    "data_type": "multiselect",
-                    "placeholder": "cf_terms_of_payment",
-                    "value": [
-                        termsOfPayment[invoice[0].payment_mode]
+                    field_id: "1155413000001759107",
+                    customfield_id: "1155413000001759107",
+                    show_in_store: false,
+                    show_in_portal: false,
+                    is_active: true,
+                    index: 1,
+                    label: "Terms of Payment",
+                    show_on_pdf: true,
+                    edit_on_portal: false,
+                    edit_on_store: false,
+                    api_name: "cf_terms_of_payment",
+                    show_in_all_pdf: true,
+                    value_formatted: termsOfPayment[invoice[0].payment_mode] || null,
+                    search_entity: "invoice",
+                    data_type: "multiselect",
+                    placeholder: "cf_terms_of_payment",
+                    value: [
+                        termsOfPayment[invoice[0].payment_mode] || null
                     ],
-                    "is_dependent_field": false
+                    is_dependent_field: false
                 },
                 {
-                    "field_id": "1155413000001759115",
-                    "customfield_id": "1155413000001759115",
-                    "show_in_store": false,
-                    "show_in_portal": false,
-                    "is_active": true,
-                    "index": 2,
-                    "label": "Payment to be Collected (If COD)",
-                    "show_on_pdf": true,
-                    "edit_on_portal": false,
-                    "edit_on_store": false,
-                    "api_name": "cf_payment_to_be_collected_if_",
-                    "show_in_all_pdf": true,
-                    "value_formatted": invoice[0].payment_mode == "COD" ? invoice[0].collectable_amount : "0",
-                    "search_entity": "invoice",
-                    "data_type": "string",
-                    "placeholder": "cf_payment_to_be_collected_if_",
-                    "value": invoice[0].payment_mode == "COD" ? invoice[0].collectable_amount : "0",
-                    "is_dependent_field": false
+                    field_id: "1155413000001759115",
+                    customfield_id: "1155413000001759115",
+                    show_in_store: false,
+                    show_in_portal: false,
+                    is_active: true,
+                    index: 2,
+                    label: "Payment to be Collected (If COD)",
+                    show_on_pdf: true,
+                    edit_on_portal: false,
+                    edit_on_store: false,
+                    api_name: "cf_payment_to_be_collected_if_",
+                    show_in_all_pdf: true,
+                    value_formatted: invoice[0].payment_mode === "COD" ? invoice[0].collectable_amount : "0",
+                    search_entity: "invoice",
+                    data_type: "string",
+                    placeholder: "cf_payment_to_be_collected_if_",
+                    value: invoice[0].payment_mode === "COD" ? invoice[0].collectable_amount : "0",
+                    is_dependent_field: false
                 },
                 {
-                    "field_id": "1155413000014100001",
-                    "customfield_id": "1155413000014100001",
-                    "show_in_store": false,
-                    "show_in_portal": false,
-                    "is_active": true,
-                    "index": 5,
-                    "label": "Order Date",
-                    "show_on_pdf": true,
-                    "edit_on_portal": false,
-                    "edit_on_store": false,
-                    "api_name": "cf_order_date",
-                    "show_in_all_pdf": true,
-                    "value_formatted": "20/04/2024",
-                    "search_entity": "invoice",
-                    "data_type": "date",
-                    "placeholder": "cf_order_date",
-                    "value": new Date(invoice[0].order_date).toISOString().split('T')[0],
-                    "is_dependent_field": false
+                    field_id: "1155413000014100001",
+                    customfield_id: "1155413000014100001",
+                    show_in_store: false,
+                    show_in_portal: false,
+                    is_active: true,
+                    index: 5,
+                    label: "Order Date",
+                    show_on_pdf: true,
+                    edit_on_portal: false,
+                    edit_on_store: false,
+                    api_name: "cf_order_date",
+                    show_in_all_pdf: true,
+                    value_formatted: new Date(invoice[0].order_date).toISOString().split('T')[0],
+                    search_entity: "invoice",
+                    data_type: "date",
+                    placeholder: "cf_order_date",
+                    value: new Date(invoice[0].order_date).toISOString().split('T')[0],
+                    is_dependent_field: false
                 },
-
+                {
+                    field_id: "1155413000001759099",
+                    customfield_id: "1155413000001759099",
+                    show_in_store: false,
+                    show_in_portal: false,
+                    is_active: true,
+                    index: 1,
+                    label: "Terms of Delivery",
+                    show_on_pdf: true,
+                    edit_on_portal: false,
+                    edit_on_store: false,
+                    api_name: "cf_terms_of_delivery",
+                    show_in_all_pdf: true,
+                    value_formatted: termsOfDelivery.field_value || null,
+                    search_entity: "invoice",
+                    data_type: "string",
+                    placeholder: "cf_terms_of_delivery",
+                    value: termsOfDelivery.field_value || null,
+                    is_dependent_field: false
+                },
             ]
         };
 
         for (const item of invoice[0].order_items) {
             const itemId = await getItemIdFromSKU(item.sku);
             easycomData.line_items.push({
-                item_id: itemId, quantity: item.suborder_quantity, rate: (item.selling_price / item.suborder_quantity), tags: [
+                item_id: itemId, 
+                quantity: item.suborder_quantity, 
+                rate: (item.selling_price / item.suborder_quantity), 
+                tags: [
                     {
                         "tag_option_id": salesSectorTags[salesSector[invoice[0].marketplace]],
                         "is_tag_mandatory": false,
