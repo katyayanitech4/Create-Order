@@ -243,44 +243,7 @@ const termsOfPayment = {
 //     }
 // }
 
-const generateAuthToken = async () => {
-    try {
-        const response = await axios.get(
-            "https://script.google.com/macros/s/AKfycbz4HwSNCuMV-s1Bz9-G-37E1tHp7bxQ35ICns48cXgwd6mdgE4KqIT8LDuxjMr7w7Gzww/exec",
-        );
-        return response.data.trim();
-    } catch (error) {
-        console.error("Error generating auth token:", error.message);
-        // throw error;
-    }
-};
 
-const getCustomerId = async (phoneNumber) => {
-    const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
-    console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
-
-    const phoneFormats = [
-        phoneNumber.replace('+', '%2B'),
-        `91${phoneNumber}`,
-        `%2B91${phoneNumber}`,
-        `%2B91 ${phoneNumber}`,
-    ];
-
-    for (const format of phoneFormats) {
-        try {
-            const response = await axios.get(`https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=${format}`, {
-                headers: {
-                    Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
-                },
-            });
-            const contactId = response.data.contacts?.[0]?.contact_id;
-            if (contactId) return contactId;
-        } catch (error) {
-            console.error("Error getting customer ID:", error.message);
-        }
-    }
-    return null;
-};
 
 const uploadFreightChargesToSheet = async (orderId) => {
     const url = `https://apiv2.shiprocket.in/v1/external/orders?search=${orderId}`;
@@ -356,7 +319,88 @@ const uploadFreightChargesToSheet = async (orderId) => {
     }
 };
 
+const generateAuthToken = async () => {
+    try {
+        const response = await axios.get(
+            "https://script.google.com/macros/s/AKfycbz4HwSNCuMV-s1Bz9-G-37E1tHp7bxQ35ICns48cXgwd6mdgE4KqIT8LDuxjMr7w7Gzww/exec"
+        );
+        return response.data.trim();
+    } catch (error) {
+        console.error("Error generating auth token:", error.message);
+    }
+};
 
+const createCustomer = async (customerData) => {
+    try {
+        const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
+        const response = await axios.post(
+            'https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540',
+            customerData,
+            {
+                headers: {
+                    Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+            }
+        );
+        return response.data.contact.contact_id;
+    } catch (error) {
+        console.error("Error creating customer:", error.message);
+        return null;
+    }
+};
+
+const getCustomerId = async (phoneNumber, invoice) => {
+    const ZOHO_BOOK_ACCESS_TOKEN = await generateAuthToken();
+    console.log("ZohoBookToken", ZOHO_BOOK_ACCESS_TOKEN);
+
+    const phoneFormats = [
+        phoneNumber.replace('+', '%2B'),
+        `91${phoneNumber}`,
+        `%2B91${phoneNumber}`,
+        `%2B91 ${phoneNumber}`,
+    ];
+
+    for (const format of phoneFormats) {
+        try {
+            const response = await axios.get(`https://www.zohoapis.in/books/v3/contacts/?organization_id=60019077540&phone=${format}`, {
+                headers: {
+                    Authorization: `Zoho-oauthtoken ${ZOHO_BOOK_ACCESS_TOKEN}`,
+                },
+            });
+            const contactId = response.data.contacts?.[0]?.contact_id;
+            if (contactId) return contactId;
+        } catch (error) {
+            console.error("Error getting customer ID:", error.message);
+        }
+    }
+
+    const newCustomerData = {
+        contact_name: invoice.customer_name,
+        phone: invoice.contact_num,
+        mobile: invoice.contact_num,
+        billing_address: {
+            attention: invoice.customer_name,
+            address: invoice.billing_address_1,
+            street2: invoice.billing_address_2,
+            state_code: invoice.billing_state_code,
+            city: invoice.billing_city,
+            state: invoice.billing_state,
+            zip: invoice.billing_pin_code,
+            country: invoice.billing_country,
+            phone: invoice.contact_num,
+        },
+        contact_persons: [
+            {
+                first_name: invoice.customer_name,
+                phone: invoice.contact_num,
+                mobile: invoice.contact_num,
+            }
+        ],
+    };
+
+    return await createCustomer(newCustomerData);
+};
 
 const postInvoiceToBooks = async (easycomData) => {
     try {
@@ -390,10 +434,8 @@ const postInvoiceToBooks = async (easycomData) => {
         return statusUpdateResponse;
     } catch (error) {
         console.log('Error in postInvoiceToBooks function:', error);
-        // throw error;
     }
 }
-
 
 const getItemIdFromSKU = async (sku) => {
     try {
@@ -418,15 +460,15 @@ const getItemIdFromSKU = async (sku) => {
 exports.postordercreate = async (invoice) => {
     console.log("easyecom invoice : ", invoice);
     console.log("SheetOrderId", invoice[0].reference_code);
-    const customerId = await getCustomerId(invoice[0].contact_num);
+    const customerId = await getCustomerId(invoice[0].contact_num , invoice[0]);
     console.log(invoice[0].order_items);
-    console.log(`Custome Feild ${invoice[0].order_items.custom_fields}`);
     console.log("Salesperson Id ", invoice[0].reference_code.split("/")[1]);
     console.log("easyecom order history", invoice[0].easyecom_order_history);
 
     console.log(`custom_fields: ${JSON.stringify(invoice[0]?.order_items[0]?.custom_fields)}`);
-const customFields = invoice[0].order_items[0].custom_fields;
-const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery");
+    const customFields = invoice[0].order_items[0].custom_fields;
+    const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery");
+    console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
 
     try {
         const easycomData = {
@@ -522,7 +564,26 @@ const termsOfDelivery = customFields.find(field => field.field_name === "Terms o
                     "value": new Date(invoice[0].order_date).toISOString().split('T')[0],
                     "is_dependent_field": false
                 },
-            
+                {
+                    "field_id": "1155413000001759099",
+                    "customfield_id": "1155413000001759099",
+                    "show_in_store": false,
+                    "show_in_portal": false,
+                    "is_active": true,
+                    "index": 1,
+                    "label": "Terms of Delivery",
+                    "show_on_pdf": true,
+                    "edit_on_portal": false,
+                    "edit_on_store": false,
+                    "api_name": "cf_terms_of_delivery",
+                    "show_in_all_pdf": true,
+                    "value_formatted": termsOfDelivery.field_value || '',
+                    "search_entity": "invoice",
+                    "data_type": "string",
+                    "placeholder": "cf_terms_of_delivery",
+                    "value": termsOfDelivery.field_value || "",
+                    "is_dependent_field": false
+                },
             ]
         };
 
