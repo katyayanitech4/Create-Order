@@ -470,11 +470,17 @@ exports.postordercreate = async (invoice) => {
     const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery");
     console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
 
+     const referenceCode = invoice[0].marketplace === 'Woocommerce' 
+    ? 'KO -' + invoice[0].reference_code 
+    : invoice[0].reference_code;
+
     try {
         const easycomData = {
             "customer_id": customerId,
-            "invoice_number": invoice[0].reference_code.length > 16 ? invoice[0].reference_code.substring(0, 6) + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0') : invoice[0].reference_code,
-            "reference_number": invoice[0].reference_code,
+            invoice_number: referenceCode.length > 16 
+        ? referenceCode.substring(0, 6) + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0') 
+        : referenceCode,
+        reference_number: referenceCode || null,
             "line_items": [],
             "salesperson_name": salesPersons[invoice[0].reference_code.split("/")[1]] || "",
             "is_inclusive_tax": true,
