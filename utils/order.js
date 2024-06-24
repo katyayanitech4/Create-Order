@@ -466,8 +466,12 @@ exports.postordercreate = async (invoice) => {
     console.log("easyecom order history", invoice[0].easyecom_order_history);
 
     console.log(`custom_fields: ${JSON.stringify(invoice[0]?.order_items[0]?.custom_fields)}`);
-    const customFields = invoice[0].order_items[0].custom_fields;
-    const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery");
+
+   const customFields = invoice[0]?.order_items?.[0]?.custom_fields || [];
+    const termsOfDelivery = customFields.length > 0 ? customFields.find(field => field.field_name === "Terms of Delivery") || { field_value: null } : null;
+    
+    // const customFields = invoice[0].order_items[0].custom_fields; 
+    // const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery");
     // console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
 
      const referenceCode = invoice[0].marketplace === 'Woocommerce' 
