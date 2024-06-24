@@ -467,7 +467,7 @@ exports.postordercreate = async (invoice) => {
 
     console.log(`custom_fields: ${JSON.stringify(invoice[0]?.order_items[0]?.custom_fields)}`);
 
-   const customFields = invoice[0]?.order_items?.[0]?.custom_fields || [];
+    const customFields = invoice[0]?.order_items?.[0]?.custom_fields || [];
     const termsOfDelivery = customFields.length > 0 ? customFields.find(field => field.field_name === "Terms of Delivery") || { field_value: null } : null;
     
     // const customFields = invoice[0].order_items[0].custom_fields; 
@@ -574,29 +574,32 @@ exports.postordercreate = async (invoice) => {
                     "value": new Date(invoice[0].order_date).toISOString().split('T')[0],
                     "is_dependent_field": false
                 },
-                {
-                    "field_id": "1155413000001759099",
-                    "customfield_id": "1155413000001759099",
-                    "show_in_store": false,
-                    "show_in_portal": false,
-                    "is_active": true,
-                    "index": 1,
-                    "label": "Terms of Delivery",
-                    "show_on_pdf": true,
-                    "edit_on_portal": false,
-                    "edit_on_store": false,
-                    "api_name": "cf_terms_of_delivery",
-                    "show_in_all_pdf": true,
-                    "value_formatted": termsOfDelivery.field_value || '',
-                    "search_entity": "invoice",
-                    "data_type": "string",
-                    "placeholder": "cf_terms_of_delivery",
-                    "value": termsOfDelivery.field_value || "",
-                    "is_dependent_field": false
-                },
             ]
         };
 
+         if (customFields.length > 0) {
+            easycomData.custom_fields.push({
+                field_id: "1155413000001759099",
+                customfield_id: "1155413000001759099",
+                show_in_store: false,
+                show_in_portal: false,
+                is_active: true,
+                index: 1,
+                label: "Terms of Delivery",
+                show_on_pdf: true,
+                edit_on_portal: false,
+                edit_on_store: false,
+                api_name: "cf_terms_of_delivery",
+                show_in_all_pdf: true,
+                value_formatted: termsOfDelivery.field_value || null,
+                search_entity: "invoice",
+                data_type: "string",
+                placeholder: "cf_terms_of_delivery",
+                value: termsOfDelivery.field_value || null,
+                is_dependent_field: false
+            });
+        }
+        
         for (const item of invoice[0].order_items) {
             const itemId = await getItemIdFromSKU(item.sku);
             easycomData.line_items.push({
