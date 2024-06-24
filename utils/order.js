@@ -475,7 +475,7 @@ exports.postordercreate = async (invoice) => {
     // console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
 
      const referenceCode = invoice[0].marketplace === 'Woocommerce' 
-    ? 'KO -' + invoice[0].reference_code 
+    ? 'KO-'+invoice[0].reference_code 
     : invoice[0].reference_code;
 
     try {
