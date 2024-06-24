@@ -468,7 +468,7 @@ exports.postordercreate = async (invoice) => {
     console.log(`custom_fields: ${JSON.stringify(invoice[0]?.order_items[0]?.custom_fields)}`);
     const customFields = invoice[0].order_items[0].custom_fields;
     const termsOfDelivery = customFields.find(field => field.field_name === "Terms of Delivery");
-    console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
+    // console.log(`Terms of Delivery field_value: ${termsOfDelivery.field_value}`);
 
      const referenceCode = invoice[0].marketplace === 'Woocommerce' 
     ? 'KO -' + invoice[0].reference_code 
