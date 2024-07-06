@@ -481,9 +481,7 @@ exports.postordercreate = async (invoice) => {
     try {
         const easycomData = {
             "customer_id": customerId,
-            invoice_number: referenceCode.length > 16 
-        ? referenceCode.substring(0, 6) + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0') 
-        : referenceCode,
+            invoice_number: referenceCode,
         reference_number: referenceCode || null,
             "line_items": [],
             "salesperson_name": salesPersons[invoice[0].reference_code.split("/")[1]] || "",
