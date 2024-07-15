@@ -622,9 +622,9 @@ exports.postordercreate = async (invoice) => {
         console.log(easycomData);
 
         const response = await postInvoiceToBooks(easycomData);
-        setTimeout(async () => {
-            await uploadFreightChargesToSheet(invoice[0].reference_code);
-        }, 30000);
+        // setTimeout(async () => {
+        //     await uploadFreightChargesToSheet(invoice[0].reference_code);
+        // }, 30000);
         console.log('easyecom invoice posted to Zoho books successfully:', response.data);
     } catch (error) {
         console.log('Error posting easyecom invoice to Zoho books:', error.response ? error.response.data : error);
