@@ -1,5 +1,4 @@
 const axios = require('axios');
-const { google } = require('googleapis');
 
 const salesPersons = {
     'uqqo2': 'sales1',
@@ -245,79 +244,79 @@ const termsOfPayment = {
 
 
 
-const uploadFreightChargesToSheet = async (orderId) => {
-    const url = `https://apiv2.shiprocket.in/v1/external/orders?search=${orderId}`;
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM0MDIwMDgsInNvdXJjZSI6InNyLWF1dGgtaW50IiwiZXhwIjoxNzE0ODkxNTE5LCJqdGkiOiJCOU9ySERXeUM0d0M4TWRoIiwiaWF0IjoxNzE0MDI3NTE5LCJpc3MiOiJodHRwczovL3NyLWF1dGguc2hpcHJvY2tldC5pbi9hdXRob3JpemUvdXNlciIsIm5iZiI6MTcxNDAyNzUxOSwiY2lkIjoyNTMyOTksInRjIjozNjAsInZlcmJvc2UiOmZhbHNlLCJ2ZW5kb3JfaWQiOjAsInZlbmRvcl9jb2RlIjoid29vY29tbWVyY2UifQ.X0uOCUBWgyILNRJuiuZVcdgj5ZFisGxyuBb5PXOcr-0';
-    try {
-        const response = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+// const uploadFreightChargesToSheet = async (orderId) => {
+//     const url = `https://apiv2.shiprocket.in/v1/external/orders?search=${orderId}`;
+//     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM0MDIwMDgsInNvdXJjZSI6InNyLWF1dGgtaW50IiwiZXhwIjoxNzE0ODkxNTE5LCJqdGkiOiJCOU9ySERXeUM0d0M4TWRoIiwiaWF0IjoxNzE0MDI3NTE5LCJpc3MiOiJodHRwczovL3NyLWF1dGguc2hpcHJvY2tldC5pbi9hdXRob3JpemUvdXNlciIsIm5iZiI6MTcxNDAyNzUxOSwiY2lkIjoyNTMyOTksInRjIjozNjAsInZlcmJvc2UiOmZhbHNlLCJ2ZW5kb3JfaWQiOjAsInZlbmRvcl9jb2RlIjoid29vY29tbWVyY2UifQ.X0uOCUBWgyILNRJuiuZVcdgj5ZFisGxyuBb5PXOcr-0';
+//     try {
+//         const response = await axios.get(url, {
+//             headers: {
+//                 Authorization: `Bearer ${token}`
+//             }
+//         });
 
-        const data = response.data.data[0];
-        console.log("Shiprocket data :  ", data);
+//         const data = response.data.data[0];
+//         console.log("Shiprocket data :  ", data);
 
-        const orderId = data.channel_order_id;
-        const date = data.channel_created_at;
-        const productName = data.products[0].name;
-        const orderValue = data.total;
-        const paymentMode = data.payment_method;
-        const awb = data.shipments[0].awb;
-        const weight = data.shipments[0].weight;
-        const courierName = data.shipments[0].courier;
-        const freightCharge = data.awb_data.charges.freight_charges;
-        const freightChargePercentage = ((freightCharge / orderValue) * 100).toFixed(2);
+//         const orderId = data.channel_order_id;
+//         const date = data.channel_created_at;
+//         const productName = data.products[0].name;
+//         const orderValue = data.total;
+//         const paymentMode = data.payment_method;
+//         const awb = data.shipments[0].awb;
+//         const weight = data.shipments[0].weight;
+//         const courierName = data.shipments[0].courier;
+//         const freightCharge = data.awb_data.charges.freight_charges;
+//         const freightChargePercentage = ((freightCharge / orderValue) * 100).toFixed(2);
 
-        console.log("Order ID:", orderId);
-        console.log("Date:", date);
-        console.log("Product Name:", productName);
-        console.log("Order Value:", orderValue);
-        console.log("Payment Mode:", paymentMode);
-        console.log("AWB:", awb);
-        console.log("Weight:", weight);
-        console.log("Courier Name:", courierName);
-        console.log("Freight Charge:", freightCharge);
-        console.log("Freight Charge %:", freightChargePercentage);
+//         console.log("Order ID:", orderId);
+//         console.log("Date:", date);
+//         console.log("Product Name:", productName);
+//         console.log("Order Value:", orderValue);
+//         console.log("Payment Mode:", paymentMode);
+//         console.log("AWB:", awb);
+//         console.log("Weight:", weight);
+//         console.log("Courier Name:", courierName);
+//         console.log("Freight Charge:", freightCharge);
+//         console.log("Freight Charge %:", freightChargePercentage);
 
-        const auth = new google.auth.GoogleAuth({
-            keyFile: 'frieght-421909-3bf3d7b3e26d.json',
-            scopes: ['https://www.googleapis.com/auth/spreadsheets']
-        });
-        const sheets = google.sheets({ version: 'v4', auth });
-        const values = [
-            [orderId, date, productName, orderValue, paymentMode, awb, weight, courierName, freightCharge, freightChargePercentage]
-        ];
+//         const auth = new google.auth.GoogleAuth({
+//             keyFile: 'frieght-421909-3bf3d7b3e26d.json',
+//             scopes: ['https://www.googleapis.com/auth/spreadsheets']
+//         });
+//         const sheets = google.sheets({ version: 'v4', auth });
+//         const values = [
+//             [orderId, date, productName, orderValue, paymentMode, awb, weight, courierName, freightCharge, freightChargePercentage]
+//         ];
 
-        const resource = {
-            values: values
-        };
+//         const resource = {
+//             values: values
+//         };
 
-        const range = 'Sheet1!A2:J2';
-        const result = await sheets.spreadsheets.values.append({
-            spreadsheetId: "1y2mD-cM10CcZSaKmjPFHrmFIwLdsOgYquifqpHg9uz8",
-            range: range,
-            valueInputOption: 'USER_ENTERED',
-            resource: resource
-        });
+//         const range = 'Sheet1!A2:J2';
+//         const result = await sheets.spreadsheets.values.append({
+//             spreadsheetId: "1y2mD-cM10CcZSaKmjPFHrmFIwLdsOgYquifqpHg9uz8",
+//             range: range,
+//             valueInputOption: 'USER_ENTERED',
+//             resource: resource
+//         });
 
-        console.log(`${result.data.updates.updatedCells} cells appended.`);
+//         console.log(`${result.data.updates.updatedCells} cells appended.`);
 
-        // addRowOnSheet([{
-        //     "Order ID": orderId,
-        //     "Date": date,
-        //     "Product Name": productName,
-        //     "Order Value": orderValue,
-        //     "Payment Mode": paymentMode, "AWB": awb, "Weight": weight, "Courier Name": courierName, "Frieght Charge": freightCharge,
-        //     "% Frieght Charge": freightChargePercentage,
-        // }]);
+//         // addRowOnSheet([{
+//         //     "Order ID": orderId,
+//         //     "Date": date,
+//         //     "Product Name": productName,
+//         //     "Order Value": orderValue,
+//         //     "Payment Mode": paymentMode, "AWB": awb, "Weight": weight, "Courier Name": courierName, "Frieght Charge": freightCharge,
+//         //     "% Frieght Charge": freightChargePercentage,
+//         // }]);
 
-        return response;
-    } catch (error) {
-        console.error("Error:", error.response ? error.response.data : error.message);
-        throw error;
-    }
-};
+//         return response;
+//     } catch (error) {
+//         console.error("Error:", error.response ? error.response.data : error.message);
+//         throw error;
+//     }
+// };
 
 const generateAuthToken = async () => {
     try {
