@@ -39,7 +39,7 @@ const processQueue = async () => {
             res.status(200).send('order created successfully');
         } catch (error) {
             console.log('Error processing webhook request for easyecom:', error);
-            res.status(500).send('Error processing webhook request for easyecom');
+            res.status(200).send('Error processing webhook request for easyecom');
         } finally {
             processingOrders.delete(referenceCode);
         }

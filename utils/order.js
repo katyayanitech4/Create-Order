@@ -325,7 +325,7 @@ const generateAuthToken = async () => {
         );
         return response.data.trim();
     } catch (error) {
-        console.error("Error generating auth token:", error.message);
+        console.log("Error generating auth token:", error.message);
     }
 };
 
@@ -344,8 +344,8 @@ const createCustomer = async (customerData) => {
         );
         return response.data.contact.contact_id;
     } catch (error) {
-        console.error("Error creating customer:", error.message);
-        return null;
+        console.log("Error creating customer:", error.message);
+
     }
 };
 
@@ -370,7 +370,7 @@ const getCustomerId = async (phoneNumber, invoice) => {
             const contactId = response.data.contacts?.[0]?.contact_id;
             if (contactId) return contactId;
         } catch (error) {
-            console.error("Error getting customer ID:", error.message);
+            console.log("Error getting customer ID:", error.message);
         }
     }
 
@@ -451,8 +451,8 @@ const getItemIdFromSKU = async (sku) => {
         const itemId = response.data.items[0].item_id;
         return itemId;
     } catch (error) {
-        console.error("Error getting item ID:", error);
-        return null;
+        console.log("Error getting item ID:", error);
+    
     }
 };
 
